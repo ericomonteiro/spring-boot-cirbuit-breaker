@@ -11,12 +11,12 @@ import org.springframework.stereotype.Service
 @Service
 class StubbyService(
     private val stubbyClient: StubbyClient,
-    private val circuitBreakerFactory: Resilience4JCircuitBreakerFactory,
+    private val circuitBreakerFactory: Resilience4JCircuitBreakerFactory
 ) {
     private val logger: Logger = LoggerFactory.getLogger(StubbyService::class.java)
 
     val circuitBreaker: Resilience4JCircuitBreaker =
-        circuitBreakerFactory.create("default-circuit")
+        circuitBreakerFactory.create("myBreaker")
 
     fun stubbyHello(): StubbyHelloDto {
         return circuitBreaker.run(
