@@ -2,6 +2,8 @@ package ericomonteiro.com.github.circuitbreaker.service
 
 import ericomonteiro.com.github.circuitbreaker.feignclients.StubbyClient
 import ericomonteiro.com.github.circuitbreaker.feignclients.StubbyHelloDto
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 import org.springframework.cloud.circuitbreaker.resilience4j.Resilience4JCircuitBreaker
 import org.springframework.cloud.circuitbreaker.resilience4j.Resilience4JCircuitBreakerFactory
 import org.springframework.stereotype.Service
@@ -9,9 +11,12 @@ import org.springframework.stereotype.Service
 @Service
 class StubbyService(
     private val stubbyClient: StubbyClient,
-    private val circuitBreakerFactory: Resilience4JCircuitBreakerFactory
+    private val circuitBreakerFactory: Resilience4JCircuitBreakerFactory,
 ) {
-    val circuitBreaker: Resilience4JCircuitBreaker = circuitBreakerFactory.create("default-circuit")
+    private val logger: Logger = LoggerFactory.getLogger(StubbyService::class.java)
+
+    val circuitBreaker: Resilience4JCircuitBreaker =
+        circuitBreakerFactory.create("default-circuit")
 
     fun stubbyHello(): StubbyHelloDto {
         return circuitBreaker.run(
@@ -20,12 +25,12 @@ class StubbyService(
     }
 
     private fun closedMethod(): StubbyHelloDto {
-        println("closed method")
+        logger.info("closed method")
         return stubbyClient.hello()
     }
 
     private fun fallbackMethod(throwable: Throwable): StubbyHelloDto {
-        println("fallback")
+        logger.info("fallback")
         return StubbyHelloDto("fallback method")
     }
 }
